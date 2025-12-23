@@ -3,22 +3,21 @@
  * for demo version, im just going to keep some preset combinations
  * but I will eventually add AI to this (tokens are the main drawback as of rn)
  */
-
 import type { ConceptNode } from '../types/game';
 
-export interface result {
-    success: boolean;
-    newConcept?: {
-        name: string;
-        category: ConceptNode['category'];
-        rarity: ConceptNode['rarity'];
-        stability: ConceptNode['stability'];
-        explanation: string;
-    }
-};
+export interface AIResult {
+  success: boolean;
+  newConcept?: {
+    name: string;
+    category: ConceptNode['category'];
+    rarity: ConceptNode['rarity'];
+    stability: ConceptNode['stability'];
+    explanation: string;
+  };
+}
 
 const combinationKey = (a: string, b: string): string => {
-    return [a,b].sort().join('|');
+  return [a, b].sort().join('|');
 };
 
 const combiner= (a: ConceptNode, b: ConceptNode): result => {

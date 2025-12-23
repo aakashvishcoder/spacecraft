@@ -6,8 +6,7 @@ interface DraggableNodeProps {
 }
 
 export default function DraggableNode({ node }: DraggableNodeProps) {
-  const moveNode = useGameStore(state => state.moveNode);
-  const removeNode = useGameStore(state => state.removeNode);
+  const moveNode = useGameStore((state) => state.moveNode);
 
   const handlePointerDown = (e: React.PointerEvent) => {
     e.preventDefault();
@@ -31,7 +30,8 @@ export default function DraggableNode({ node }: DraggableNodeProps) {
   };
 
   const artSrc = node.artKey ? `/assets/nodes/${node.artKey}.png` : null;
-  const baseClasses = "absolute w-16 h-16 rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center border-2";
+  const baseClasses =
+    'absolute w-16 h-16 rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center border-2';
 
   const stabilityClasses = {
     stable: 'border-green-400 shadow-green-500/30',
