@@ -22,6 +22,8 @@ export default function NodeCanvas() {
 
   useEffect(() => {
     const pairsToCheck: [ConceptNode, ConceptNode][] = [];
+
+    // Detect collisions
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const a = nodes[i];
@@ -40,42 +42,40 @@ export default function NodeCanvas() {
       }
     }
 
-    pairsToCheck.forEach(([a, b]) => {
-      const result = generateCombination(a, b);
-      if (result.success && result.newConcept) {
-        const newTemplate: Omit<ConceptNode, 'id' | 'position'> = {
-          ...result.newConcept,
-          combinedFrom: [a.name, b.name], 
-        };
+    const processCollisions = async () => {
+      for (const [a, b] of pairsToCheck) {
+        const result = await generateCombination(a, b);
+        if (result.success && result.newConcept) {
+          const newId = `${a.id}-${b.id}-${Date.now()}`;
+          const newNode: ConceptNode = {
+            id: newId,
+            ...result.newConcept,
+            position: {
+              x: (a.position.x + b.position.x) / 2,
+              y: (a.position.y + b.position.y) / 2,
+            },
+            combinedFrom: [a.id, b.id],
+          };
 
-        recordDiscovery({
-          ...newTemplate,
-          id: `${a.name}-${b.name}-${Date.now()}`, 
-          position: { x: 0, y: 0 },
-        });
-
-        const canvasNode: ConceptNode = {
-          ...newTemplate,
-          id: `${a.id}-${b.id}-${Date.now()}`,
-          position: {
-            x: (a.position.x + b.position.x) / 2,
-            y: (a.position.y + b.position.y) / 2,
-          },
-        };
-
-        setTimeout(() => {
-          removeNodeFromCanvas(a.id);
-          removeNodeFromCanvas(b.id);
-          addNodeToCanvas(canvasNode);
-          resetProcessedPairs(); 
-        }, 300);
+          setTimeout(() => {
+            removeNodeFromCanvas(a.id);
+            removeNodeFromCanvas(b.id);
+            addNodeToCanvas(newNode);
+            recordDiscovery(newNode);
+            resetProcessedPairs();
+          }, 300);
+        }
       }
-    });
+    };
+
+    if (pairsToCheck.length > 0) {
+      processCollisions();
+    }
   }, [nodes, addNodeToCanvas, removeNodeFromCanvas, recordDiscovery, resetProcessedPairs]);
 
   return (
     <div className="relative w-full h-full bg-black/30 backdrop-blur-sm border border-blue-900/20 rounded-lg">
-      {nodes.map(node => (
+      {nodes.map((node) => (
         <DraggableNode key={node.id} node={node} />
       ))}
     </div>
