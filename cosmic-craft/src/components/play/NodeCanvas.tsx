@@ -1,14 +1,24 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { useGameStore } from '../../store/useGameStore';
 import { generateCombination } from '../../lib/ai/engine';
 import type { ConceptNode } from '../../lib/types/game';
 import DraggableNode from './DraggableNode';
 
-const DISTANCE_THRESHOLD = 80; 
+const DISTANCE_THRESHOLD = 80;
 
 export default function NodeCanvas() {
-  const { nodes, addNode, removeNode } = useGameStore();
+  const {
+    nodes,
+    removeNodeFromCanvas,
+    addNodeToCanvas,
+    recordDiscovery,
+  } = useGameStore();
+
   const processedPairs = useRef<Set<string>>(new Set());
+
+  const resetProcessedPairs = useCallback(() => {
+    processedPairs.current.clear();
+  }, []);
 
   useEffect(() => {
     const pairsToCheck: [ConceptNode, ConceptNode][] = [];
@@ -33,24 +43,35 @@ export default function NodeCanvas() {
     pairsToCheck.forEach(([a, b]) => {
       const result = generateCombination(a, b);
       if (result.success && result.newConcept) {
-        const newId = `${a.id}-${b.id}`;
-        const newNode: ConceptNode = {
-          id: newId,
+        const newTemplate: Omit<ConceptNode, 'id' | 'position'> = {
           ...result.newConcept,
+          combinedFrom: [a.name, b.name], 
+        };
+
+        recordDiscovery({
+          ...newTemplate,
+          id: `${a.name}-${b.name}-${Date.now()}`, 
+          position: { x: 0, y: 0 },
+        });
+
+        const canvasNode: ConceptNode = {
+          ...newTemplate,
+          id: `${a.id}-${b.id}-${Date.now()}`,
           position: {
             x: (a.position.x + b.position.x) / 2,
             y: (a.position.y + b.position.y) / 2,
           },
-          combinedFrom: [a.id, b.id],
         };
+
         setTimeout(() => {
-          removeNode(a.id);
-          removeNode(b.id);
-          addNode(newNode);
+          removeNodeFromCanvas(a.id);
+          removeNodeFromCanvas(b.id);
+          addNodeToCanvas(canvasNode);
+          resetProcessedPairs(); 
         }, 300);
       }
     });
-  }, [nodes, addNode, removeNode]);
+  }, [nodes, addNodeToCanvas, removeNodeFromCanvas, recordDiscovery, resetProcessedPairs]);
 
   return (
     <div className="relative w-full h-full bg-black/30 backdrop-blur-sm border border-blue-900/20 rounded-lg">

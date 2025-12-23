@@ -1,4 +1,3 @@
-// store/useGameStore.ts
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { ConceptNode } from '../lib/types/game';
@@ -9,42 +8,71 @@ const STARTER_NODES: ConceptNode[] = [
 ];
 
 interface GameState {
-  nodes: ConceptNode[];
-  discoveryLog: string[]; 
+  nodes: ConceptNode[]; 
+  discoveredNodes: ConceptNode[]; 
+  sidebarOpen: boolean;
+  
   toggleSidebar: () => void;
-  addNode: (node: ConceptNode) => void;
-  moveNode: (id: string, x: number, y: number) => void;
-  removeNode: (id: string) => void;
+  addNodeToCanvas: (nodeTemplate: Omit<ConceptNode, 'id' | 'position'>) => void;
+  removeNodeFromCanvas: (id: string) => void;
+  recordDiscovery: (node: ConceptNode) => void;
+  moveNode: (id: string, x: number, y: number) => void; 
 }
 
 export const useGameStore = create<GameState>()(
   persist(
     (set, get) => ({
-      nodes: STARTER_NODES,
-      discoveryLog: STARTER_NODES.map(n => n.id),
+      nodes: [...STARTER_NODES],
+      discoveredNodes: [...STARTER_NODES],
       sidebarOpen: true,
 
       toggleSidebar: () => set(state => ({ sidebarOpen: !state.sidebarOpen })),
 
-      addNode: (node) => {
+      addNodeToCanvas: (nodeTemplate) => {
+        const x = 400 + Math.random() * 200;
+        const y = typeof window !== 'undefined' ? window.innerHeight - 150 : 400;
+        const newId = `${nodeTemplate.name.replace(/\s+/g, '-')}-${Date.now()}`;
+        
+        const newNode: ConceptNode = {
+          ...nodeTemplate,
+          id: newId,
+          position: { x, y },
+        };
+        
         set(state => ({
-          nodes: [...state.nodes, node],
-          discoveryLog: [...state.discoveryLog, node.id],
+          nodes: [...state.nodes, newNode],
         }));
       },
 
-      moveNode: (id, x, y) => {
-        set(state => ({
-          nodes: state.nodes.map(n => n.id === id ? { ...n, position: { x, y } } : n),
-        }));
-      },
-
-      removeNode: (id) => {
+      removeNodeFromCanvas: (id) => {
         set(state => ({
           nodes: state.nodes.filter(n => n.id !== id),
         }));
       },
+
+      recordDiscovery: (node) => {
+        set(state => {
+          const exists = state.discoveredNodes.some(n => n.name === node.name);
+          if (exists) return {};
+          return {
+            discoveredNodes: [...state.discoveredNodes, node],
+          };
+        });
+      },
+
+      moveNode: (id, x, y) => {
+        set(state => ({
+          nodes: state.nodes.map(node =>
+            node.id === id ? { ...node, position: { x, y } } : node
+          ),
+        }));
+      },
     }),
-    { name: 'spacecraft-game-v1' }
+    {
+      name: 'spacecraft-game-v2',
+      partialize: (state) => ({
+        discoveredNodes: state.discoveredNodes,
+      }),
+    }
   )
 );
