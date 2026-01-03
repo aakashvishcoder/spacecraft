@@ -4,7 +4,7 @@ import DiscoverySidebar from './DiscoverySidebar';
 import { useGameStore } from '../../store/useGameStore';
 
 export default function PlayScreen() {
-  const { sidebarOpen, toggleSidebar } = useGameStore();
+  const { sidebarOpen, toggleSidebar, nodes } = useGameStore();
 
   return (
     <div className="min-h-screen bg-black text-blue-400 font-mono relative overflow-hidden">
@@ -44,7 +44,7 @@ export default function PlayScreen() {
 
         <div className="flex h-[calc(100vh-120px)]">
           <div className="flex-1 rounded-lg overflow-hidden">
-            <NodeCanvas />
+            <NodeCanvas key={nodes.length} />
           </div>
           <DiscoverySidebar />
         </div>

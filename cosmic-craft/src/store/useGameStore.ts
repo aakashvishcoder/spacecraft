@@ -5,6 +5,13 @@ import type { ConceptNode } from '../lib/types/game';
 const STARTER_NODES: ConceptNode[] = [
   { id: 'star', name: 'Star', category: 'astronomy', rarity: 'common', stability: 'stable', position: { x: 300, y: 200 }, artKey: 'star' },
   { id: 'gravity', name: 'Gravity', category: 'physics', rarity: 'common', stability: 'stable', position: { x: 500, y: 200 }, artKey: 'gravity' },
+
+  { id: 'planet', name: 'Planet', category: 'astronomy', rarity: 'common', stability: 'stable', position: { x: 400, y: 300 }, artKey: 'planet' },
+  { id: 'nebula', name: 'Nebula', category: 'astronomy', rarity: 'uncommon', stability: 'stable', position: { x: 600, y: 300 }, artKey: 'nebula' },
+  { id: 'black-hole', name: 'Black Hole', category: 'astronomy', rarity: 'rare', stability: 'stable', position: { x: 300, y: 400 }, artKey: 'black-hole' },
+  { id: 'quantum', name: 'Quantum', category: 'physics', rarity: 'uncommon', stability: 'unstable', position: { x: 500, y: 400 }, artKey: 'quantum' },
+  { id: 'computer', name: 'Computer', category: 'technology', rarity: 'common', stability: 'stable', position: { x: 400, y: 500 }, artKey: 'computer' },
+  { id: 'ai', name: 'AI', category: 'technology', rarity: 'rare', stability: 'stable', position: { x: 600, y: 500 }, artKey: 'ai' },
 ];
 
 interface GameState {
@@ -15,7 +22,7 @@ interface GameState {
   toggleSidebar: () => void;
   addNodeToCanvas: (nodeTemplate: Omit<ConceptNode, 'id' | 'position'>) => void;
   removeNodeFromCanvas: (id: string) => void;
-  recordDiscovery: (node: ConceptNode) => void;
+  recordDiscovery: (nodeName: string, nodeData: Omit<ConceptNode, 'id' | 'position'>) => void;
   moveNode: (id: string, x: number, y: number) => void;
 }
 
@@ -29,14 +36,10 @@ export const useGameStore = create<GameState>()(
       toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
 
       addNodeToCanvas: (nodeTemplate) => {
-        const x = 400 + Math.random() * 200;
-        const y = typeof window !== 'undefined' ? window.innerHeight - 150 : 400;
-        const newId = `${nodeTemplate.name.replace(/\s+/g, '-')}-${Date.now()}`;
-
         const newNode: ConceptNode = {
           ...nodeTemplate,
-          id: newId,
-          position: { x, y },
+          id: `${nodeTemplate.name.replace(/\s+/g, '-')}-${Date.now()}`,
+          position: { x: 500, y: 300 }, 
         };
 
         set((state) => ({
@@ -50,12 +53,19 @@ export const useGameStore = create<GameState>()(
         }));
       },
 
-      recordDiscovery: (node) => {
+      recordDiscovery: (name, nodeData) => {
         set((state) => {
-          const exists = state.discoveredNodes.some((n) => n.name === node.name);
-          if (exists) return {};
+          if (state.discoveredNodes.some(n => n.name === name)) return {};
           return {
-            discoveredNodes: [...state.discoveredNodes, node],
+            discoveredNodes: [
+              ...state.discoveredNodes,
+              {
+                ...nodeData,
+                id: name,
+                name,
+                position: { x: 0, y: 0 }
+              }
+            ],
           };
         });
       },
@@ -69,7 +79,7 @@ export const useGameStore = create<GameState>()(
       },
     }),
     {
-      name: 'spacecraft-game-v2',
+      name: 'spacecraft-game-v5',
       partialize: (state) => ({
         discoveredNodes: state.discoveredNodes,
       }),

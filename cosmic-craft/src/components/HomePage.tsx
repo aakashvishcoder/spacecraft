@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-// each node will be grouped to a png (for simplicity)
 
 const EXAMPLE_NODES = [
   { id: 'star', name: 'Star', artKey: 'star' },
@@ -40,7 +39,7 @@ const HomePage: React.FC = () => {
 
       <div className="absolute inset-0 z-5 pointer-events-none">
         {EXAMPLE_NODES.map((node) => {
-          const artSrc = node.artKey ? `/assets/nodes/${node.artKey}.png` : null; // node art will be stored in here
+          const artSrc = node.artKey ? `/assets/nodes/${node.artKey}.png` : null; 
           return (
             <div
               key={node.id}

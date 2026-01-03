@@ -1,6 +1,6 @@
 export type ConceptCategory = 'astronomy' | 'physics' | 'technology' | 'exploration';
 export type RarityLevel = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
-export type StabilityLevel = 'stable' | 'unstable';
+export type StabilityLevel = 'stable' | 'unstable' | 'theoretical';
 
 export interface ConceptNode {
     id: string;

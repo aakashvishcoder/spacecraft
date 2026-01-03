@@ -50,18 +50,9 @@ export default function DraggableNode({ node }: DraggableNodeProps) {
       }}
       onPointerDown={handlePointerDown}
     >
-      {artSrc ? (
-        <img
-          src={artSrc}
-          alt={node.name}
-          className="w-12 h-12 object-contain"
-          onError={(e) => (e.currentTarget.style.display = 'none')}
-        />
-      ) : (
-        <span className="text-white text-[10px] font-bold text-center px-1 leading-tight">
-          {node.name}
-        </span>
-      )}
+      <span className="text-white text-xs font-bold text-center px-1 leading-tight">
+        {node.name}
+      </span>
     </div>
   );
 }

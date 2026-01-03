@@ -21,9 +21,9 @@ export default function DiscoverySidebar() {
         {discoveredNodes.length === 0 ? (
           <p className="text-blue-500/60 text-xs">Discover your first concept!</p>
         ) : (
-          discoveredNodes.map((template) => (
+          discoveredNodes.map((template, idx) => (
             <div
-              key={template.name}
+              key={template.name + idx} 
               className="group relative text-xs text-blue-300/90 p-2 bg-blue-900/10 rounded border border-blue-800/20 hover:bg-blue-800/20 transition"
             >
               <div className="flex items-center gap-2 mb-1">
