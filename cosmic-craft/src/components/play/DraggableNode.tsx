@@ -29,7 +29,6 @@ export default function DraggableNode({ node }: DraggableNodeProps) {
     window.addEventListener('pointerup', handleUp);
   };
 
-  const artSrc = node.artKey ? `/assets/nodes/${node.artKey}.png` : null;
   const baseClasses =
     'absolute w-16 h-16 rounded-full cursor-grab active:cursor-grabbing flex items-center justify-center border-2';
 
